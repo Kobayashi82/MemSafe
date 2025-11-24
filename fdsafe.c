@@ -21,7 +21,7 @@ int	__wrap_open(const char *file, int oflag, ...)
 	{
 		out = va_arg(args, int**);
 		if (out)
-		*out = fd_table;
+			*out = fd_table;
 		return (va_end(args), 0);
 	}
 	if (oflag & O_CREAT)
