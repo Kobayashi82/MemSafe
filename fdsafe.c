@@ -13,21 +13,27 @@ int	__wrap_open(const char *file, int oflag, ...)
 	static int	fd_table[1024];
 	va_list		args;
 	int			fd;
+	int			**out;
 	mode_t		mode;
 
+	va_start(args, oflag);
 	if (oflag == -42)
-		return ((int)(uintptr_t)fd_table);
+	{
+		out = va_arg(args, int**);
+		if (out)
+		*out = fd_table;
+		return (va_end(args), 0);
+	}
 	if (oflag & O_CREAT)
 	{
-		va_start(args, oflag);
 		mode = va_arg(args, mode_t);
-		va_end(args);
 		fd = __real_open(file, oflag, mode);
 	}
 	else
 		fd = __real_open(file, oflag);
 	if (fd >= 0 && fd < 1024)
 		fd_table[fd] = 1;
+	va_end(args);
 	return (fd);
 }
 
@@ -35,7 +41,7 @@ int	__wrap_close(int fd)
 {
 	int	*fd_table;
 
-	fd_table = (int *)(uintptr_t)open("", -42);
+	__wrap_open("", -42, &fd_table);
 	if (fd == -42)
 	{
 		fd = -1;
@@ -59,7 +65,7 @@ int	__wrap_dup(int fd)
 	int	*fd_table;
 	int	new_fd;
 
-	fd_table = (int *)(uintptr_t)open("", -42);
+	__wrap_open("", -42, &fd_table);
 	if (fd < 0)
 		return (-1);
 	new_fd = __real_dup(fd);
@@ -73,7 +79,7 @@ int	__wrap_dup2(int fd, int fd2)
 	int	*fd_table;
 	int	new_fd;
 
-	fd_table = (int *)(uintptr_t)open("", -42);
+	__wrap_open("", -42, &fd_table);
 	new_fd = -1;
 	if (fd == -1)
 		return (new_fd);
@@ -89,7 +95,7 @@ int	__wrap_pipe(int pipedes[2])
 {
 	int	*fd_table;
 
-	fd_table = (int *)(uintptr_t)open("", -42);
+	__wrap_open("", -42, &fd_table);
 	if (__real_pipe(pipedes) == -1)
 		return (-1);
 	fd_table[pipedes[0]] = 1;
