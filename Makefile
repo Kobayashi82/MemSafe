@@ -5,7 +5,7 @@ CC			= clang -g
 
 LDFLAGS		= -Wl,--wrap=malloc -Wl,--wrap=free -Wl,--wrap=open -Wl,--wrap=close -Wl,--wrap=dup -Wl,--wrap=dup2 -Wl,--wrap=pipe -Wl,--wrap=execve -Wl,--wrap,exit
 
-SRCS		= test.c memsafe.c fdsafe.c execvesafe.c exit.c
+SRCS		= test.c safe_mem.c safe_fd.c safe_execve.c safe_exit.c
 
 all: $(NAME)
 

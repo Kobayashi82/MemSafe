@@ -31,7 +31,7 @@ Este proyecto intercepta llamadas estándar al sistema operativo (`malloc`, `fre
 
 ## 📦 Componentes
 
-### memsafe.c
+### safe_mem.c
 Wrapper para funciones de gestión de memoria:
 - `__wrap_malloc()` - Intercepta malloc y registra el puntero asignado en una tabla hash
 - `__wrap_free()` - Intercepta free y elimina el puntero de la tabla hash
@@ -45,7 +45,7 @@ Wrapper para funciones de gestión de memoria:
 - No libera memoria no asignada (no produce error)
 - No libera memoria ya liberada (no produce error)
 
-### fdsafe.c
+### safe_fd.c
 Wrapper para funciones de manejo de file descriptors:
 - `__wrap_open()` - Intercepta open y registra el descriptor en una tabla
 - `__wrap_close()` - Intercepta close y actualiza la tabla de descriptores
@@ -59,7 +59,7 @@ Wrapper para funciones de manejo de file descriptors:
 - Soporte para flags de `O_CREAT` con modo variádico
 - Gestión de descriptores estándar (stdin, stdout, stderr)
 
-### execvesafe.c
+### safe_execve.c
 Wrapper para función de ejecución:
 - `__wrap_execve()` - Intercepta execve, duplica argumentos/entorno y libera recursos automáticamente
 
@@ -69,7 +69,7 @@ Wrapper para función de ejecución:
 - Restauración de stdin, stdout, stderr tras liberar recursos
 - Gestión segura de memoria en caso de fallo de execve
 
-### exit.c
+### safe_exit.c
 Wrapper para función de terminación:
 - `__wrap_exit()` - Intercepta exit y libera todos los recursos antes de terminar
 
@@ -137,7 +137,7 @@ LDFLAGS = -Wl,--wrap=malloc \
 Y añade los archivos fuente a tu compilación:
 
 ```makefile
-SRCS = memsafe.c fdsafe.c execvesafe.c exit.c ...
+SRCS = safe_mem.c safe_fd.c safe_execve.c safe_exit.c ...
 ```
 
 ### Uso en el código
@@ -198,23 +198,23 @@ Asegurar que los tests no dejen recursos abiertos entre ejecuciones.
 ## 🏗️ Arquitectura
 
 ```
-┌───────────────────────────────────────┐
-│             Tu Aplicación             │
-└───────────────────┬───────────────────┘
-          ┌─────────▼─────────┐
-          │  MemSafe Wrapper  │
-      ┌───└─────────┬─────────┘───┐
- ┌────▼────┐   ┌────▼───┐   ┌─────▼─────┐
- │memsafe.c│   │fdsafe.c│   │execvsafe.c│
- └────┬────┘   └────┬───┘   └─────┬─────┘
-      └────┌────────▼────────┐────┘
-           │  System  Calls  │
-           └─────────────────┘
+ ┌───────────────────────────────────────┐
+ │             Tu Aplicación             │
+ └───────────────────┬───────────────────┘
+           ┌─────────▼─────────┐
+           │  MemSafe Wrapper  │
+       ┌───└─────────┬─────────┘────┐
+ ┌─────▼────┐   ┌────▼────┐   ┌─────▼──────┐
+ │safe_mem.c│   │safe_fd.c│   │safe_execv.c│
+ └─────┬────┘   └────┬────┘   └─────┬──────┘
+       └────┌────────▼────────┐─────┘
+            │  System  Calls  │
+            └─────────────────┘
 ```
 
 ## 🔍 Detalles de implementación
 
-### Tabla Hash (memsafe.c)
+### Tabla Hash (safe_mem.c)
 
 La función hash utilizada es una variante del algoritmo de hash multiplicativo:
 
@@ -230,13 +230,18 @@ return (addr % 1031);          // Módulo con primo
 
 Esta función hash proporciona excelente distribución y minimiza colisiones.
 
-### Gestión de FDs (fdsafe.c)
+### Gestión de FDs (safe_fd.c)
 
 Los descriptores se almacenan en un array estático de 1024 posiciones, cubriendo el rango típico de descriptores en sistemas Unix (0-1023).
 
-### Duplicación segura (execvesafe.c)
+### Duplicación segura (safe_execve.c)
 
 Antes de llamar a `execve`, se duplican todos los argumentos y variables de entorno usando `__real_malloc`, de forma que los recursos originales puedan liberarse de forma segura incluso si `execve` falla.
+
+### Terminación segura (safe_exit.c)
+
+Gestiona la salida del proceso llamando a exit, tanto en finalización normal como en condiciones de error.
+Intercepta señales que terminan el programa y libera todos los recursos registrados antes de salir
 
 ## ⚠️ Consideraciones
 
