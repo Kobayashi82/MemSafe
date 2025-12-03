@@ -41,7 +41,9 @@ Wrapper para funciones de gestión de memoria:
 - Tabla hash de 1031 entradas para distribución óptima
 - Función de hash personalizada para minimizar colisiones
 - Gestión de colisiones mediante listas enlazadas
-- O(1) amortizado para inserción y búsqueda
+- O(1) en promedio para inserción y búsqueda
+- No libera memoria no asignada (no produce error)
+- No libera memoria ya liberada (no produce error)
 
 ### fdsafe.c
 Wrapper para funciones de manejo de file descriptors:
@@ -246,14 +248,9 @@ Antes de llamar a `execve`, se duplican todos los argumentos y variables de ento
 
 ## 🔮 Posibles mejoras
 
+- [ ] Soporte para realloc y calloc
 - [ ] Implementación thread-safe con mutex
 - [ ] Estadísticas de uso de memoria (peak, total, leaks)
-- [ ] Modo debug con logging detallado
-- [ ] Detección de double-free
-- [ ] Detección de use-after-free
-- [ ] Soporte para realloc y calloc
-- [ ] Tabla hash dinámica que crece según necesidad
-- [ ] API para consultar estado de recursos
 
 ---
 
