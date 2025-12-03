@@ -1,6 +1,7 @@
-#include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <sys/wait.h>
 
 char	*ft_strdup(const char *s)
 {
@@ -44,29 +45,21 @@ int	test_execve(void)
 
 int	main()
 {
-	void	*ptr;
-	int		fd;
-	int		fds[2];
+	int	fds[2];
 
 	malloc(32);
-	malloc(32);
-	malloc(32);
-	malloc(32);
-	free((void *)-42);
-	fd = open("./test.c", O_RDONLY);
 	open("./test.c", O_RDONLY);
 	pipe(fds);
-	fd = dup(STDOUT_FILENO);
+	dup(STDOUT_FILENO);
 	dup2(fds[1], STDOUT_FILENO);
-	dup2(fd, STDOUT_FILENO);
-	close(fd);
 	close(-42);
+	free((void *)-42);
+	malloc(16);
+	open("./test.c", O_RDONLY);
+	int pid = fork();
+	if (pid == 0)
+		test_execve();
+	else
+		waitpid(pid, NULL, 0);
 	test_execve();
-	close(STDOUT_FILENO);
-	close(STDIN_FILENO);
-	close(STDERR_FILENO);
-	ptr = malloc(16);
-	free(ptr);
-	fd = open("./test.c", O_RDONLY);
-	close(fd);
 }

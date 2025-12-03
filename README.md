@@ -58,15 +58,25 @@ Wrapper para funciones de manejo de file descriptors:
 - Gestión de descriptores estándar (stdin, stdout, stderr)
 
 ### execvesafe.c
-Wrapper para funciones de ejecución y terminación:
+Wrapper para función de ejecución:
 - `__wrap_execve()` - Intercepta execve, duplica argumentos/entorno y libera recursos automáticamente
-- `__wrap_exit()` - Intercepta exit y libera todos los recursos antes de terminar
 
 **Características técnicas:**
 - Duplicación profunda de arrays de strings para `argv` y `envp`
 - Uso de funciones `__real_*` para evitar recursión
 - Restauración de stdin, stdout, stderr tras liberar recursos
 - Gestión segura de memoria en caso de fallo de execve
+
+### exit.c
+Wrapper para función de terminación:
+- `__wrap_exit()` - Intercepta exit y libera todos los recursos antes de terminar
+
+**Características técnicas:**
+- Handlers para 11 señales críticas (SIGTERM, SIGINT, SIGQUIT, SIGHUP, SIGILL, SIGABRT, SIGFPE, SIGSEGV, SIGBUS, SIGTRAP, SIGSYS)
+- Uso de `__attribute__((constructor(101)))` para inicialización temprana de handlers
+- Registro con `atexit()` para garantizar limpieza en terminación normal
+- Restauración de handlers por defecto con `signal(sig, SIG_DFL)` antes de re-lanzar señal
+- Llamada a `raise(sig)` para propagar la señal después de limpieza
 
 ## 🔧 Instalación y Uso
 
@@ -92,6 +102,20 @@ El programa de prueba demuestra:
 - Llamada a execve
 - Liberación automática de todos los recursos
 
+### Verificación con Valgrind
+
+El proyecto incluye el script `leaks` que ejecuta Valgrind con las opciones apropiadas para detectar memory leaks y file descriptor leaks:
+
+```sh
+./leaks ./test
+```
+
+Este script ejecuta:
+- `--leak-check=full` - Análisis completo de memory leaks
+- `--show-leak-kinds=all` - Muestra todos los tipos de leaks
+- `--track-fds=yes` - Rastrea file descriptors abiertos
+- `--trace-children=yes` - Sigue procesos hijos
+
 ### Integración en tu proyecto
 
 Para usar MemSafe en tu propio proyecto, añade las siguientes flags de enlazado:
@@ -111,7 +135,7 @@ LDFLAGS = -Wl,--wrap=malloc \
 Y añade los archivos fuente a tu compilación:
 
 ```makefile
-SRCS = memsafe.c fdsafe.c execvesafe.c ...
+SRCS = memsafe.c fdsafe.c execvesafe.c exit.c ...
 ```
 
 ### Uso en el código

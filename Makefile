@@ -1,11 +1,11 @@
 
 NAME		= test
 
-CC			= clang
+CC			= clang -g
 
 LDFLAGS		= -Wl,--wrap=malloc -Wl,--wrap=free -Wl,--wrap=open -Wl,--wrap=close -Wl,--wrap=dup -Wl,--wrap=dup2 -Wl,--wrap=pipe -Wl,--wrap=execve -Wl,--wrap,exit
 
-SRCS		= test.c memsafe.c fdsafe.c execvesafe.c
+SRCS		= test.c memsafe.c fdsafe.c execvesafe.c exit.c
 
 all: $(NAME)
 

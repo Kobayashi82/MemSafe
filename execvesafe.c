@@ -1,19 +1,11 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-void	__real_exit(int status);
 int		__real_execve(const char *path, char *const argv[], char *const envp[]);
 void	*__real_malloc(size_t size);
 void	__real_free(void *ptr);
 int		__real_dup(int fd);
 int		__real_dup2(int fd, int fd2);
-
-void	__wrap_exit(int status)
-{
-	free((void *)-42);
-	close(-42);
-	__real_exit(status);
-}
 
 static void	process_fds(void)
 {
