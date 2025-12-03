@@ -67,7 +67,6 @@ static void	mem_delete(void *ptr)
 		prev = mem;
 		mem = mem[1];
 	}
-	__real_free(ptr);
 }
 
 void	*__wrap_malloc(size_t size)
