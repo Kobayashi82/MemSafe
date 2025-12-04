@@ -203,7 +203,7 @@ Asegurar que los tests no dejen recursos abiertos entre ejecuciones.
                         │   MemSafe Wrapper   │
         ┌───────────────└─┬─────────────────┬─┘───────────────┐
  ┌──────▼──────┐   ┌──────▼──────┐   ┌──────▼──────┐   ┌──────▼──────┐
- │  safe_mem.c │   │  safe_fd.c  │   │ safe_execv.c│   │ safe_exit.c │
+ │  safe_mem.c │   │  safe_fd.c  │   │safe_execve.c│   │ safe_exit.c │
  └──────┬──────┘   └──────┬──────┘   └──────┬──────┘   └──────┬──────┘
         └──────────────►┌─▼─────────────────▼─┐◄──────────────┘
                         │    System  Calls    │
