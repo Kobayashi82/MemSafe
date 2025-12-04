@@ -16,7 +16,7 @@
 
 MemSafe es una biblioteca de funciones wrapper que proporciona una capa de seguridad para la gestión automática de memoria y recursos del sistema en aplicaciones C.
 
-Este proyecto intercepta llamadas estándar al sistema operativo (`malloc`, `free`, `open`, `close`, `execve`, etc.) para gestionar automáticamente la liberación de recursos y prevenir memory leaks en caso de errores o terminación del programa.
+Este proyecto intercepta llamadas estándar al sistema operativo (`malloc`, `calloc`, `realloc`, `free`, `open`, `close`, `execve`, etc.) para gestionar automáticamente la liberación de recursos y prevenir memory leaks en caso de errores o terminación del programa.
 
 ## ✨ Características
 
@@ -44,6 +44,11 @@ Wrapper para funciones de gestión de memoria:
 - O(1) en promedio para inserción y búsqueda
 - No libera memoria no asignada (no produce error)
 - No libera memoria ya liberada (no produce error)
+
+### safe_xmem.c
+Wrapper para funciones de gestión de memoria extras (requieren safe_mem.c):
+- `__wrap_calloc()` - Intercepta calloc y registra el puntero asignado en una tabla hash
+- `__wrap_realloc()` - Intercepta realloc y actualiza el puntero en la tabla hash
 
 ### safe_fd.c
 Wrapper para funciones de manejo de file descriptors:
@@ -124,6 +129,8 @@ Para usar MemSafe en tu propio proyecto, añade las siguientes flags de enlazado
 
 ```makefile
 LDFLAGS = -Wl,--wrap=malloc \
+          -Wl,--wrap=calloc \
+          -Wl,--wrap=realloc \
           -Wl,--wrap=free \
           -Wl,--wrap=open \
           -Wl,--wrap=close \
@@ -137,7 +144,7 @@ LDFLAGS = -Wl,--wrap=malloc \
 Y añade los archivos fuente a tu compilación:
 
 ```makefile
-SRCS = safe_mem.c safe_fd.c safe_execve.c safe_exit.c ...
+SRCS = safe_mem.c safe_xmem.c safe_fd.c safe_execve.c safe_exit.c ...
 ```
 
 ### Uso en el código
@@ -248,12 +255,6 @@ Intercepta señales que terminan el programa y libera todos los recursos registr
 - **Límite de FDs**: Soporte para un máximo de 1024 descriptores de archivo.
 - **Uso de -42**: El valor mágico `-42` se usa para comandos especiales. Evita usar este valor en tu código.
 - **Performance**: El overhead es mínimo para la mayoría de aplicaciones, pero puede ser significativo en programas con millones de asignaciones.
-
-## 🔮 Posibles mejoras
-
-- [ ] Soporte para realloc y calloc
-- [ ] Implementación thread-safe con mutex
-- [ ] Estadísticas de uso de memoria (peak, total, leaks)
 
 ---
 

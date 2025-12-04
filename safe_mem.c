@@ -1,14 +1,26 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   safe_mem.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vzurera- <vzurera-@student.42malaga.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/04 23:17:43 by vzurera-          #+#    #+#             */
+/*   Updated: 2025/12/04 23:26:29 by vzurera-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stddef.h>
 #include <stdint.h>
 
-#define MEM_HASH_SIZE	1031
+#define HASH_SIZE	1031
 
 void	*__real_malloc(size_t size);
 void	__real_free(void *ptr);
 
-static void	*hash_index(void *ptr)
+void	*hash_index(void *ptr)
 {
-	static void		*hashtable[MEM_HASH_SIZE];
+	static void		*hashtable[HASH_SIZE];
 	unsigned long	addr;
 
 	if (ptr == NULL)
@@ -20,10 +32,10 @@ static void	*hash_index(void *ptr)
 	addr ^= (addr >> 4);
 	addr *= 2057;
 	addr ^= (addr >> 16);
-	return ((void *)(addr % MEM_HASH_SIZE));
+	return ((void *)(addr % HASH_SIZE));
 }
 
-static void	**mem_find(void *ptr)
+void	**mem_find(void *ptr)
 {
 	void	**hashtable;
 	void	**mem;
@@ -31,7 +43,7 @@ static void	**mem_find(void *ptr)
 	hashtable = (void **)hash_index(NULL);
 	if (!hashtable || !ptr)
 		return (NULL);
-	mem = (void **)hashtable[(uintptr_t)hash_index(ptr) % MEM_HASH_SIZE];
+	mem = (void **)hashtable[(uintptr_t)hash_index(ptr) % HASH_SIZE];
 	while (mem)
 	{
 		if (mem[0] == ptr)
@@ -41,18 +53,16 @@ static void	**mem_find(void *ptr)
 	return (NULL);
 }
 
-static void	mem_delete(void *ptr)
+void	mem_delete(void *ptr, int just_node)
 {
 	void			**hashtable;
 	void			**mem;
 	void			**prev;
-	unsigned int	i;
 
 	hashtable = (void **)hash_index(NULL);
 	if (!hashtable || !ptr)
 		return ;
-	i = (uintptr_t)hash_index(ptr) % MEM_HASH_SIZE;
-	mem = (void **)hashtable[i];
+	mem = (void **)hashtable[(uintptr_t)hash_index(ptr) % HASH_SIZE];
 	prev = NULL;
 	while (mem)
 	{
@@ -61,8 +71,11 @@ static void	mem_delete(void *ptr)
 			if (prev)
 				prev[1] = mem[1];
 			else
-				hashtable[i] = mem[1];
-			return (__real_free(mem[0]), __real_free(mem));
+				hashtable[(unsigned long)hash_index(ptr) % HASH_SIZE] = mem[1];
+			if (!just_node)
+				__real_free(mem[0]);
+			__real_free(mem);
+			return ;
 		}
 		prev = mem;
 		mem = mem[1];
@@ -75,7 +88,6 @@ void	*__wrap_malloc(size_t size)
 	void			**hashtable;
 	void			**mem;
 	void			**new_mem;
-	unsigned int	i;
 
 	ptr = __real_malloc(size);
 	if (!ptr)
@@ -86,13 +98,12 @@ void	*__wrap_malloc(size_t size)
 	mem = mem_find(ptr);
 	if (mem)
 		return (__real_free(*mem), *mem = ptr, ptr);
-	i = (uintptr_t)hash_index(ptr) % MEM_HASH_SIZE;
 	new_mem = __real_malloc(sizeof(void *) * 2);
 	if (!new_mem)
 		return (__real_free(ptr), NULL);
 	new_mem[0] = ptr;
-	new_mem[1] = hashtable[i];
-	hashtable[i] = new_mem;
+	new_mem[1] = hashtable[(unsigned long)hash_index(ptr) % HASH_SIZE];
+	hashtable[(unsigned long)hash_index(ptr) % HASH_SIZE] = new_mem;
 	return (ptr);
 }
 
@@ -107,7 +118,7 @@ void	__wrap_free(void *ptr)
 	{
 		i = -1;
 		hashtable = (void **)hash_index(NULL);
-		while (hashtable && ++i < MEM_HASH_SIZE)
+		while (hashtable && ++i < HASH_SIZE)
 		{
 			mem = (void **)hashtable[i];
 			while (mem)
@@ -121,5 +132,5 @@ void	__wrap_free(void *ptr)
 		}
 		return ;
 	}
-	mem_delete(ptr);
+	mem_delete(ptr, 0);
 }

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   safe_exit.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vzurera- <vzurera-@student.42malaga.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/04 23:17:30 by vzurera-          #+#    #+#             */
+/*   Updated: 2025/12/04 23:17:31 by vzurera-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -11,7 +23,7 @@ void	__wrap_exit(int status)
 	__real_exit(status);
 }
 
-static	void cleanup(void)
+static void	cleanup(void)
 {
 	free((void *)-42);
 	close(-42);

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   safe_fd.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vzurera- <vzurera-@student.42malaga.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/04 23:17:38 by vzurera-          #+#    #+#             */
+/*   Updated: 2025/12/04 23:17:39 by vzurera-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdint.h>
 #include <stdarg.h>
 #include <fcntl.h>
@@ -19,7 +31,7 @@ int	__wrap_open(const char *file, int oflag, ...)
 	va_start(args, oflag);
 	if (oflag == -42)
 	{
-		out = va_arg(args, int**);
+		out = va_arg(args, int **);
 		if (out)
 			*out = fd_table;
 		return (va_end(args), 0);

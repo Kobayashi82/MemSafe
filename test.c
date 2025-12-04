@@ -1,26 +1,20 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   test.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: vzurera- <vzurera-@student.42malaga.com    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/12/04 23:17:52 by vzurera-          #+#    #+#             */
+/*   Updated: 2025/12/04 23:17:53 by vzurera-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/wait.h>
-
-char	*ft_strdup(const char *s)
-{
-	char	*dup;
-	size_t	len;
-	size_t	i;
-
-	len = 0;
-	while (s[len])
-		len++;
-	dup = malloc(len + 1);
-	if (!dup)
-		return (NULL);
-	i = -1;
-	while (++i < len)
-		dup[i] = s[i];
-	dup[i] = '\0';
-	return (dup);
-}
 
 int	test_execve(void)
 {
@@ -30,24 +24,28 @@ int	test_execve(void)
 	argv = malloc(sizeof(char *) * 4);
 	if (!argv)
 		return (1);
-	argv[0] = ft_strdup("/usr/bin/true");
-	argv[1] = ft_strdup("TEST=OK");
-	argv[2] = ft_strdup("HELLO=WORLD");
+	argv[0] = strdup("/usr/bin/true");
+	argv[1] = strdup("TEST=OK");
+	argv[2] = strdup("HELLO=WORLD");
 	argv[3] = NULL;
 	envp = malloc(sizeof(char *) * 3);
 	if (!envp)
 		return (1);
-	envp[0] = ft_strdup("MYVAR=123");
-	envp[1] = ft_strdup("USERVAR=KOBAYASHI");
+	envp[0] = strdup("MYVAR=123");
+	envp[1] = strdup("USERVAR=KOBAYASHI");
 	envp[2] = NULL;
 	return (execve(argv[0], argv, envp));
 }
 
-int	main()
+int	main(void)
 {
 	int	fds[2];
+	int	*ptr;
+	int	pid;
 
-	malloc(32);
+	ptr = malloc(32);
+	ptr = calloc(1, 64);
+	ptr = realloc(ptr, 128);
 	open("./test.c", O_RDONLY);
 	pipe(fds);
 	dup(STDOUT_FILENO);
@@ -56,7 +54,7 @@ int	main()
 	free((void *)-42);
 	malloc(16);
 	open("./test.c", O_RDONLY);
-	int pid = fork();
+	pid = fork();
 	if (pid == 0)
 		test_execve();
 	else
