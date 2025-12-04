@@ -241,12 +241,12 @@ Los descriptores se almacenan en un array estático de 1024 posiciones, cubriend
 
 ### Duplicación segura (safe_execve.c)
 
-Antes de llamar a `execve`, se duplican todos los argumentos y variables de entorno usando `__real_malloc`, de forma que los recursos originales puedan liberarse de forma segura incluso si `execve` falla.
+Cuando se llama a `execve`, se duplican los argumentos y variables de entorno mediante `__real_malloc` antes de liberar toda la memoria asignada y cerrar todos los descriptores de archivo, excepto `stdin`, `stdout` y `stderr`.
 
 ### Terminación segura (safe_exit.c)
 
-Gestiona la salida del proceso llamando a exit, tanto en finalización normal como en condiciones de error.
-Intercepta señales que terminan el programa y libera todos los recursos registrados antes de salir
+Gestiona la salida del proceso llamando a `exit`, tanto en finalización normal como en condiciones de error.
+Intercepta señales que terminan el programa y libera todos los recursos antes de salir.
 
 ## ⚠️ Consideraciones
 
