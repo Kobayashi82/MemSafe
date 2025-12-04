@@ -122,27 +122,53 @@ Este script ejecuta:
 
 ### Integración en tu proyecto
 
-Para usar MemSafe en tu propio proyecto, añade las siguientes flags de enlazado:
+Para usar MemSafe en tu propio proyecto, añade las flags de enlazado y los archivos .c:
 
 ```makefile
-LDFLAGS = -Wl,--wrap=malloc \
-          -Wl,--wrap=calloc \
-          -Wl,--wrap=realloc \
-          -Wl,--wrap=free \
-          -Wl,--wrap=open \
-          -Wl,--wrap=close \
-          -Wl,--wrap=dup \
-          -Wl,--wrap=dup2 \
-          -Wl,--wrap=pipe \
-          -Wl,--wrap=execve \
-          -Wl,--wrap=exit
-```
+# Makefile de demostración
 
-Y añade los archivos fuente a tu compilación:
+NAME	= myprogram
+CC		= clang -g
 
-```makefile
-SRCS = safe_mem.c safe_xmem.c safe_fd.c safe_execve.c safe_exit.c ...
+LDFLAGS = -Wl,--wrap=malloc  \
+		  -Wl,--wrap=calloc  \
+		  -Wl,--wrap=realloc \
+		  -Wl,--wrap=free    \
+		  -Wl,--wrap=open    \
+		  -Wl,--wrap=close   \
+		  -Wl,--wrap=dup     \
+		  -Wl,--wrap=dup2    \
+		  -Wl,--wrap=pipe    \
+		  -Wl,--wrap=execve  \
+		  -Wl,--wrap=exit
 
+SRCS	= safe_mem.c         \
+		  safe_xmem.c        \
+		  safe_fd.c          \
+		  safe_execve.c      \
+		  safe_exit.c        \
+		  myprogram.c
+
+OBJS    = $(SRCS:%.c=obj/%.o)
+
+all: $(NAME)
+
+$(NAME): $(OBJS)
+	@$(CC) $(LDFLAGS) -o $(NAME) $(OBJS)
+
+obj/%.o: %.c
+	@mkdir -p $(@D)
+	@$(CC) -o $@ -c $<
+
+re: fclean all
+
+clean:
+	@rm -rf obj 2> /dev/null
+
+fclean: clean
+	@rm -f $(NAME) 2> /dev/null
+
+.PHONY: all clean fclean re
 ```
 
 ### Uso en el código
