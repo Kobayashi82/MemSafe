@@ -158,7 +158,7 @@ El código de tu aplicación no necesita cambios. Simplemente usa las funciones 
 int main(void)
 {
     char *ptr;
-    int fd;
+    int  fd;
 	
 	ptr = malloc(100);                // Se registra automáticamente
 	fd = open("file.txt", O_RDONLY);  // Se registra automáticamente
