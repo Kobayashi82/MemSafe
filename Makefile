@@ -5,19 +5,19 @@ LDFLAGS = -Wl,--wrap=malloc  \
 		  -Wl,--wrap=calloc  \
 		  -Wl,--wrap=realloc \
 		  -Wl,--wrap=free    \
+		  -Wl,--wrap=execve  \
+		  -Wl,--wrap=exit    \
 		  -Wl,--wrap=open    \
 		  -Wl,--wrap=close   \
 		  -Wl,--wrap=dup     \
 		  -Wl,--wrap=dup2    \
-		  -Wl,--wrap=pipe    \
-		  -Wl,--wrap=execve  \
-		  -Wl,--wrap=exit
+		  -Wl,--wrap=pipe
 
 SRCS	= safe_mem.c         \
 		  safe_xmem.c        \
-		  safe_fd.c          \
 		  safe_execve.c      \
 		  safe_exit.c        \
+		  safe_fd.c          \
 		  test.c
 
 OBJS    = $(SRCS:%.c=obj/%.o)

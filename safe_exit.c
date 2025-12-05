@@ -6,20 +6,20 @@
 /*   By: vzurera- <vzurera-@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/04 23:17:30 by vzurera-          #+#    #+#             */
-/*   Updated: 2025/12/04 23:17:31 by vzurera-         ###   ########.fr       */
+/*   Updated: 2025/12/05 14:55:04 by vzurera-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <signal.h>
-#include <stdlib.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include <signal.h>
 
 void	__real_exit(int status);
 
 void	__wrap_exit(int status)
 {
 	free((void *)-42);
-	close(-421);
+	close(-42);
 	__real_exit(status);
 }
 
@@ -43,12 +43,5 @@ static void	init_signal_handlers(void)
 	signal(SIGINT, handle_signal);
 	signal(SIGQUIT, handle_signal);
 	signal(SIGHUP, handle_signal);
-	signal(SIGILL, handle_signal);
-	signal(SIGABRT, handle_signal);
-	signal(SIGFPE, handle_signal);
-	signal(SIGSEGV, handle_signal);
-	signal(SIGBUS, handle_signal);
-	signal(SIGTRAP, handle_signal);
-	signal(SIGSYS, handle_signal);
 	atexit(cleanup);
 }

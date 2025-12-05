@@ -6,16 +6,15 @@
 /*   By: vzurera- <vzurera-@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/04 23:17:43 by vzurera-          #+#    #+#             */
-/*   Updated: 2025/12/04 23:26:29 by vzurera-         ###   ########.fr       */
+/*   Updated: 2025/12/05 13:58:28 by vzurera-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stddef.h>
-#include <stdint.h>
 
 #define HASH_SIZE	1031
 
-void	*__real_malloc(size_t size);
+void	*__real_malloc(unsigned long size);
 void	__real_free(void *ptr);
 
 void	*hash_index(void *ptr)
@@ -43,7 +42,7 @@ void	**mem_find(void *ptr)
 	hashtable = (void **)hash_index(NULL);
 	if (!hashtable || !ptr)
 		return (NULL);
-	mem = (void **)hashtable[(uintptr_t)hash_index(ptr) % HASH_SIZE];
+	mem = (void **)hashtable[(unsigned long)hash_index(ptr)];
 	while (mem)
 	{
 		if (mem[0] == ptr)
@@ -62,7 +61,7 @@ void	mem_delete(void *ptr, int just_node)
 	hashtable = (void **)hash_index(NULL);
 	if (!hashtable || !ptr)
 		return ;
-	mem = (void **)hashtable[(uintptr_t)hash_index(ptr) % HASH_SIZE];
+	mem = (void **)hashtable[(unsigned long)hash_index(ptr)];
 	prev = NULL;
 	while (mem)
 	{
@@ -71,7 +70,7 @@ void	mem_delete(void *ptr, int just_node)
 			if (prev)
 				prev[1] = mem[1];
 			else
-				hashtable[(unsigned long)hash_index(ptr) % HASH_SIZE] = mem[1];
+				hashtable[(unsigned long)hash_index(ptr)] = mem[1];
 			if (!just_node)
 				__real_free(mem[0]);
 			__real_free(mem);
@@ -82,7 +81,7 @@ void	mem_delete(void *ptr, int just_node)
 	}
 }
 
-void	*__wrap_malloc(size_t size)
+void	*__wrap_malloc(unsigned long size)
 {
 	void			*ptr;
 	void			**hashtable;
@@ -97,13 +96,13 @@ void	*__wrap_malloc(size_t size)
 		return (NULL);
 	mem = mem_find(ptr);
 	if (mem)
-		return (__real_free(*mem), *mem = ptr, ptr);
+		return (ptr);
 	new_mem = __real_malloc(sizeof(void *) * 2);
 	if (!new_mem)
 		return (__real_free(ptr), NULL);
 	new_mem[0] = ptr;
-	new_mem[1] = hashtable[(unsigned long)hash_index(ptr) % HASH_SIZE];
-	hashtable[(unsigned long)hash_index(ptr) % HASH_SIZE] = new_mem;
+	new_mem[1] = hashtable[(unsigned long)hash_index(ptr)];
+	hashtable[(unsigned long)hash_index(ptr)] = new_mem;
 	return (ptr);
 }
 

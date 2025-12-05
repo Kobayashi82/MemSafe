@@ -46,7 +46,7 @@ Wrapper para funciones de gestión de memoria:
 - No libera memoria ya liberada (no produce error)
 
 ### safe_xmem.c
-Wrapper para funciones de gestión de memoria extras (requieren safe_mem.c):
+Wrapper para funciones de gestión de memoria extras (requiere `safe_mem.c`):
 - `__wrap_calloc()` - Intercepta calloc y registra el puntero asignado en una tabla hash
 - `__wrap_realloc()` - Intercepta realloc y actualiza el puntero en la tabla hash
 
@@ -65,7 +65,7 @@ Wrapper para funciones de manejo de file descriptors:
 - Gestión de descriptores estándar (stdin, stdout, stderr)
 
 ### safe_execve.c
-Wrapper para función de ejecución:
+Wrapper para función de ejecución (requiere `safe_mem.c`):
 - `__wrap_execve()` - Intercepta `execve`, duplica argumentos/entorno y libera recursos automáticamente
 
 **Características técnicas:**
@@ -74,13 +74,13 @@ Wrapper para función de ejecución:
 - Gestión segura de memoria en caso de fallo de execve
 
 ### safe_exit.c
-Wrapper para función de terminación:
+Wrapper para función de terminación (requiere `safe_mem.c`):
 - `__wrap_exit()` - Gestiona la salida del proceso llamando a `exit`, tanto en finalización normal como en condiciones de error
 
 **Características técnicas:**
 - Uso de `__attribute__((constructor(101)))` para inicialización temprana de handlers
 - Registro con `atexit()` para garantizar limpieza en terminación normal
-- Handlers para señales críticas (SIGTERM, SIGINT, SIGQUIT, SIGHUP, SIGILL, SIGABRT, SIGFPE, SIGSEGV, SIGBUS, SIGTRAP, SIGSYS)
+- Handlers para señales de termionación (SIGTERM, SIGINT, SIGQUIT, SIGHUP)
 
 ## 🔧 Instalación y Uso
 

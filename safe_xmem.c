@@ -6,24 +6,23 @@
 /*   By: vzurera- <vzurera-@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/04 23:17:47 by vzurera-          #+#    #+#             */
-/*   Updated: 2025/12/04 23:27:16 by vzurera-         ###   ########.fr       */
+/*   Updated: 2025/12/05 13:59:08 by vzurera-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <stddef.h>
-#include <stdint.h>
 
 #define HASH_SIZE	1031
 
-void	*__real_malloc(size_t size);
-void	*__real_calloc(size_t nmemb, size_t size);
-void	*__real_realloc(void *ptr, size_t size);
+void	*__real_malloc(unsigned long size);
+void	*__real_calloc(unsigned long nmemb, unsigned long size);
+void	*__real_realloc(void *ptr, unsigned long size);
 void	__real_free(void *ptr);
 void	*hash_index(void *ptr);
 void	**mem_find(void *ptr);
 void	mem_delete(void *ptr, int just_node);
 
-void	*__wrap_calloc(size_t nmemb, size_t size)
+void	*__wrap_calloc(unsigned long nmemb, unsigned long size)
 {
 	void			*ptr;
 	void			**hashtable;
@@ -50,7 +49,7 @@ void	*__wrap_calloc(size_t nmemb, size_t size)
 	return (ptr);
 }
 
-void	*__wrap_realloc(void *ptr, size_t size)
+void	*__wrap_realloc(void *ptr, unsigned long size)
 {
 	void			*oldptr;
 	void			**hashtable;
@@ -59,10 +58,11 @@ void	*__wrap_realloc(void *ptr, size_t size)
 
 	oldptr = ptr;
 	ptr = __real_realloc(ptr, size);
+	if (!ptr && !size && oldptr)
+		return (mem_delete(oldptr, 1), NULL);
 	if (!ptr || oldptr == ptr)
 		return (ptr);
-	if (oldptr != ptr)
-		mem_delete(oldptr, 1);
+	mem_delete(oldptr, 1);
 	hashtable = (void **)hash_index(NULL);
 	if (!hashtable)
 		return (NULL);

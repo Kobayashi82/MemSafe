@@ -6,7 +6,7 @@
 /*   By: vzurera- <vzurera-@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/04 23:17:24 by vzurera-          #+#    #+#             */
-/*   Updated: 2025/12/04 23:17:26 by vzurera-         ###   ########.fr       */
+/*   Updated: 2025/12/05 13:59:30 by vzurera-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,12 @@
 #include <stdlib.h>
 
 int		__real_execve(const char *path, char *const argv[], char *const envp[]);
-void	*__real_malloc(size_t size);
+void	*__real_malloc(unsigned long size);
 void	__real_free(void *ptr);
 int		__real_dup(int fd);
 int		__real_dup2(int fd, int fd2);
 
-static void	process_fds(void)
+static int	process_fds(void)
 {
 	int	fdin;
 	int	fdout;
@@ -29,18 +29,22 @@ static void	process_fds(void)
 	fdout = __real_dup(STDOUT_FILENO);
 	fderr = __real_dup(STDERR_FILENO);
 	close(-42);
-	dup2(fdin, STDIN_FILENO);
-	dup2(fdout, STDOUT_FILENO);
-	dup2(fderr, STDERR_FILENO);
+	if (fdin < 0 || __real_dup2(fdin, STDIN_FILENO) < 0)
+		return (close(fdin), close(fdout), close(fderr), 1);
 	close(fdin);
+	if (fdout < 0 || __real_dup2(fdout, STDOUT_FILENO) < 0)
+		return (close(fdout), close(fderr), 1);
 	close(fdout);
+	if (fderr < 0 || __real_dup2(fderr, STDERR_FILENO) < 0)
+		return (close(fderr), 1);
 	close(fderr);
+	return (0);
 }
 
-static char	*real_strdup(const char *src)
+static char	*custom_strdup(const char *src)
 {
-	char	*dest;
-	size_t	len;
+	char			*dest;
+	unsigned long	len;
 
 	if (!src)
 		return (NULL);
@@ -59,9 +63,9 @@ static char	*real_strdup(const char *src)
 
 static char	**duplicate_array(char *const src[])
 {
-	char	**dest;
-	size_t	i;
-	size_t	count;
+	char			**dest;
+	unsigned long	i;
+	unsigned long	count;
 
 	if (!src)
 		return (NULL);
@@ -74,7 +78,7 @@ static char	**duplicate_array(char *const src[])
 	i = -1;
 	while (++i < count)
 	{
-		dest[i] = real_strdup(src[i]);
+		dest[i] = custom_strdup(src[i]);
 		if (!dest[i])
 		{
 			while (i-- > 0)
@@ -86,28 +90,38 @@ static char	**duplicate_array(char *const src[])
 	return (dest);
 }
 
+static void	free_array(char ***array)
+{
+	unsigned long	i;
+
+	i = -1;
+	while (array && *array && (*array)[++i])
+		__real_free((*array)[i]);
+	__real_free(*array);
+}
+
 int	__wrap_execve(const char *path, char *const argv[], char *const envp[])
 {
 	char	*cmd;
-	char	**args_copy;
-	char	**env_copy;
+	char	**args_cpy;
+	char	**env_cpy;
 	int		result;
-	size_t	i;
 
-	cmd = real_strdup(path);
-	args_copy = duplicate_array(argv);
-	env_copy = duplicate_array(envp);
+	if (process_fds())
+		return (free((void *)-42), 1);
+	cmd = custom_strdup(path);
+	if (!cmd)
+		return (free((void *)-42), 1);
+	args_cpy = duplicate_array(argv);
+	if (!args_cpy && argv)
+		return (__real_free(cmd), free((void *)-42), 1);
+	env_cpy = duplicate_array(envp);
+	if (!env_cpy && envp)
+		return (__real_free(cmd), free_array(&args_cpy), free((void *)-42), 1);
 	free((void *)-42);
-	process_fds();
-	result = __real_execve(cmd, args_copy, env_copy);
+	result = __real_execve(cmd, args_cpy, env_cpy);
 	__real_free(cmd);
-	i = -1;
-	while (args_copy[++i])
-		__real_free(args_copy[i]);
-	__real_free(args_copy);
-	i = -1;
-	while (env_copy[++i])
-		__real_free(env_copy[i]);
-	__real_free(env_copy);
+	free_array(&args_cpy);
+	free_array(&env_cpy);
 	return (result);
 }
