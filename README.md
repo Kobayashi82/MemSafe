@@ -10,6 +10,10 @@
 
 </div>
 
+<div align="center">
+  <img src="/MemSafe.png">
+</div>
+
 # MemSafe
 
 ## 🎯 Descripción
