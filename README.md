@@ -238,7 +238,7 @@ Este proyecto está licenciado bajo la WTFPL – [Do What the Fuck You Want to P
 
 <div align="center">
 
-**🧠 Desarrollado por Kobayashi82 🧠**
+**🧮 Desarrollado por Kobayashi82 🧮**
 
 *"Memory leaks? Not on my watch!"*
 
