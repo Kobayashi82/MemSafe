@@ -20,7 +20,7 @@
 
 `MemSafe` es una biblioteca de funciones wrapper que proporciona una capa de seguridad para la gestión automática de memoria y recursos del sistema en aplicaciones C.
 
-Este proyecto intercepta llamadas estándar al sistema operativo (`malloc`, `calloc`, `realloc`, `free`, `open`, `close`, `execve`, etc.) para gestionar automáticamente la liberación de recursos y prevenir memory leaks en caso de errores o terminación del programa.
+Este proyecto intercepta llamadas estándar al sistema operativo (`malloc`, `calloc`, `realloc`, `free`, `open`, `close`, `execve`, etc.) para gestionar automáticamente la liberación de recursos y prevenir memory `leaks` en caso de errores o terminación del programa.
 
 ## ✨ Características
 
