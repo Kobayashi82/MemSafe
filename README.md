@@ -6,7 +6,7 @@
 ![Norminette-OK](https://img.shields.io/badge/Norminette-OK-green?style=for-the-badge)
 ![C Language](https://img.shields.io/badge/Language-C-red?style=for-the-badge)
 
-*Wrapper functions para gestión segura de memoria y recursos del sistema*
+*Wrapper functions for safe memory and system resource management*
 
 </div>
 
@@ -16,120 +16,122 @@
 
 # MemSafe
 
-## 🎯 Descripción
+[README en Español](README_es.md)
 
-MemSafe es una biblioteca de funciones wrapper que proporciona una capa de seguridad para la gestión automática de memoria y recursos del sistema en aplicaciones C.
+## 🎯 Description
 
-Este proyecto intercepta llamadas estándar al sistema operativo (`malloc`, `calloc`, `realloc`, `free`, `open`, `close`, `execve`, etc.) para gestionar automáticamente la liberación de recursos y prevenir memory leaks en caso de errores o terminación del programa.
+MemSafe is a wrapper library that provides a safety layer for automatic memory and system resource management in C applications.
 
-## ✨ Características
+This project intercepts standard OS calls (`malloc`, `calloc`, `realloc`, `free`, `open`, `close`, `execve`, etc.) to automatically release resources and prevent memory leaks in case of errors or program termination.
 
-- **Gestión automática de memoria**: Rastreo y liberación automática de toda la memoria asignada.
-- **Gestión de descriptores de archivo**: Control automático de apertura y cierre de file descriptors.
-- **Seguridad en `execve`**: Duplicación segura de argumentos y entorno antes de ejecutar nuevos procesos.
-- **Hash table eficiente**: Utiliza una tabla hash para el seguimiento rápido de punteros de memoria.
-- **Liberación masiva**: Función especial para liberar todos los recursos con una sola llamada.
-- **Sin overhead visual**: Los wrappers son transparentes para el código del usuario.
-- **Compatible con POSIX**: Implementación estándar compatible con sistemas Unix/Linux.
-- **Norminette compliant**: Código que cumple con los estándares de la Norminette de 42.
+## ✨ Features
 
-## 📦 Componentes
+- **Automatic memory management**: Tracks and frees all allocated memory.
+- **File descriptor management**: Automatically handles open/close of file descriptors.
+- **`execve` safety**: Safely duplicates arguments and environment before executing new processes.
+- **Efficient hash table**: Uses a hash table for fast tracking of memory pointers.
+- **Mass release**: Special function to free all resources with a single call.
+- **Transparent usage**: Wrappers are transparent to user code.
+- **POSIX compatible**: Standard implementation for Unix/Linux systems.
+- **Norminette compliant**: Meets 42 Norminette standards.
+
+## 📦 Components
 
 ### safe_mem.c
-Wrapper para funciones de gestión de memoria:
-- `__wrap_malloc()` - Intercepta malloc y registra el puntero asignado en una tabla hash
-- `__wrap_free()` - Intercepta free y elimina el puntero de la tabla hash
-- Función especial: `free((void *)-42)` - Libera toda la memoria registrada
+Wrapper for memory management functions:
+- `__wrap_malloc()` - Intercepts malloc and registers the pointer in a hash table
+- `__wrap_free()` - Intercepts free and removes the pointer from the hash table
+- Special function: `free((void *)-42)` - Frees all registered memory
 
-**Características técnicas:**
-- Tabla hash de 1031 entradas para distribución óptima
-- Función de hash personalizada para minimizar colisiones
-- Gestión de colisiones mediante listas enlazadas
-- O(1) en promedio para inserción y búsqueda
-- No libera memoria no asignada (no produce error)
-- No libera memoria ya liberada (no produce error)
+**Technical details:**
+- Hash table with 1031 entries for optimal distribution
+- Custom hash function to minimize collisions
+- Collision handling via linked lists
+- O(1) average insert/lookup
+- Does not free unallocated memory (no error)
+- Does not free already freed memory (no error)
 
 ### safe_xmem.c
-Wrapper para funciones de gestión de memoria extras (requiere `safe_mem.c`):
-- `__wrap_calloc()` - Intercepta calloc y registra el puntero asignado en una tabla hash
-- `__wrap_realloc()` - Intercepta realloc y actualiza el puntero en la tabla hash
+Wrapper for extra memory management functions (requires `safe_mem.c`):
+- `__wrap_calloc()` - Intercepts calloc and registers the pointer in a hash table
+- `__wrap_realloc()` - Intercepts realloc and updates the pointer in the hash table
 
 ### safe_fd.c
-Wrapper para funciones de manejo de file descriptors:
-- `__wrap_open()` - Intercepta open y registra el descriptor en una tabla
-- `__wrap_close()` - Intercepta close y actualiza la tabla de descriptores
-- `__wrap_dup()` - Intercepta dup y registra el nuevo descriptor
-- `__wrap_dup2()` - Intercepta dup2 y gestiona ambos descriptores
-- `__wrap_pipe()` - Intercepta pipe y registra ambos extremos del pipe
-- Función especial: `close(-42)` - Cierra todos los descriptores abiertos
+Wrapper for file descriptor management:
+- `__wrap_open()` - Intercepts open and registers the descriptor in a table
+- `__wrap_close()` - Intercepts close and updates the descriptor table
+- `__wrap_dup()` - Intercepts dup and registers the new descriptor
+- `__wrap_dup2()` - Intercepts dup2 and manages both descriptors
+- `__wrap_pipe()` - Intercepts pipe and registers both ends
+- Special function: `close(-42)` - Closes all open file descriptors
 
-**Características técnicas:**
-- Tabla estática de 1024 entradas (0-1023)
-- Soporte para flags de `O_CREAT` con modo variádico
-- Gestión de descriptores estándar (stdin, stdout, stderr)
+**Technical details:**
+- Static table of 1024 entries (0-1023)
+- Supports `O_CREAT` flags with variadic mode
+- Manages standard descriptors (stdin, stdout, stderr)
 
 ### safe_execve.c
-Wrapper para función de ejecución (requiere `safe_mem.c`):
-- `__wrap_execve()` - Intercepta `execve`, duplica argumentos/entorno y libera recursos automáticamente
+Execution wrapper (requires `safe_mem.c`):
+- `__wrap_execve()` - Intercepts `execve`, duplicates args/environment and frees resources automatically
 
-**Características técnicas:**
-- Duplicación profunda de arrays de strings para `argv` y `envp`
-- Restauración de stdin, stdout, stderr tras liberar recursos
-- Gestión segura de memoria en caso de fallo de execve
+**Technical details:**
+- Deep copy of string arrays for `argv` and `envp`
+- Restores stdin, stdout, stderr after freeing resources
+- Safe memory handling on execve failure
 
 ### safe_exit.c
-Wrapper para función de terminación (requiere `safe_mem.c`):
-- `__wrap_exit()` - Gestiona la salida del proceso llamando a `exit`, tanto en finalización normal como en condiciones de error
+Termination wrapper (requires `safe_mem.c`):
+- `__wrap_exit()` - Manages process exit via `exit`, both on normal completion and error conditions
 
-**Características técnicas:**
-- Uso de `__attribute__((constructor(101)))` para inicialización temprana de handlers
-- Registro con `atexit()` para garantizar limpieza en terminación normal
-- Handlers para señales de termionación (SIGTERM, SIGINT, SIGQUIT, SIGHUP)
+**Technical details:**
+- Uses `__attribute__((constructor(101)))` for early handler initialization
+- Registers with `atexit()` to guarantee cleanup on normal termination
+- Signal handlers for termination signals (SIGTERM, SIGINT, SIGQUIT, SIGHUP)
 
-## 🔧 Instalación y Uso
+## 🔧 Installation and Usage
 
-### Compilación del proyecto de prueba
+### Build the test project
 
 ```sh
 make
 ```
 
-Esto generará el ejecutable `test` con todos los wrappers aplicados.
+This generates the `test` executable with all wrappers applied.
 
-### Ejecución del test
+### Run the test
 
 ```sh
 ./test
 ```
 
-El programa de prueba demuestra:
-- Múltiples asignaciones de memoria
-- Apertura de archivos
-- Creación de pipes
-- Duplicación de descriptores
-- Llamada a execve
-- Liberación automática de todos los recursos
+The test program demonstrates:
+- Multiple memory allocations
+- File opening
+- Pipe creation
+- Descriptor duplication
+- execve call
+- Automatic resource cleanup
 
-### Verificación con Valgrind
+### Valgrind verification
 
-El proyecto incluye el script `leaks` que ejecuta Valgrind con las opciones apropiadas para detectar memory leaks y file descriptor leaks:
+The project includes the `leaks` script that runs Valgrind with appropriate options to detect memory leaks and FD leaks:
 
 ```sh
 ./leaks ./test
 ```
 
-Este script ejecuta:
-- `--leak-check=full` - Análisis completo de memory leaks
-- `--show-leak-kinds=all` - Muestra todos los tipos de leaks
-- `--track-fds=yes` - Rastrea file descriptors abiertos
-- `--trace-children=yes` - Sigue procesos hijos
+This script runs:
+- `--leak-check=full` - Full memory leak analysis
+- `--show-leak-kinds=all` - Shows all leak kinds
+- `--track-fds=yes` - Tracks open file descriptors
+- `--trace-children=yes` - Follows child processes
 
-### Integración en tu proyecto
+### Integrate into your project
 
-Para usar MemSafe en tu propio proyecto, añade las flags de enlazado y los archivos .c:
+To use MemSafe in your project, add the linker flags and .c files:
 
 ```makefile
-# Makefile de demostración
+# Demo Makefile
 
 NAME	= myprogram
 CC		= clang -g
@@ -175,9 +177,9 @@ fclean: clean
 .PHONY: all clean fclean re
 ```
 
-### Uso en el código
+### Usage in code
 
-El código de tu aplicación no necesita cambios. Simplemente usa las funciones estándar:
+Your application code does not need changes. Just use standard functions:
 
 ```c
 #include <stdlib.h>
@@ -188,26 +190,26 @@ int main(void)
     char *ptr;
     int  fd;
 
-	ptr = malloc(100);                // Se registra automáticamente
-	fd = open("file.txt", O_RDONLY);  // Se registra automáticamente
+	ptr = malloc(100);                // Automatically tracked
+	fd = open("file.txt", O_RDONLY);  // Automatically tracked
 
-    // resto de código...
+    // rest of code...
 
-    // Liberar toda la memoria registrada
+    // Free all tracked memory
     free((void *)-42);
 
-    // Cerrar todos los descriptores de archivo
+    // Close all open file descriptors
     close(-42);
 
-    // Al salir, todo se libera automáticamente, ya sea por una salida normal, llamada a exit() o por una señal crítica
+    // On exit, everything is freed automatically, either via normal exit, exit() call, or a fatal signal
 }
 ```
 
-## 🏗️ Arquitectura
+## 🏗️ Architecture
 
 ```
                ┌───────────────────────────────────────┐
-               │             Tu Aplicación             │
+               │             Your App                  │
                └───────────────────┬───────────────────┘
                         ┌──────────▼──────────┐
                         │   MemSafe Wrapper   │
@@ -220,25 +222,25 @@ int main(void)
                         └─────────────────────┘
 ```
 
-## ⚠️ Consideraciones
+## ⚠️ Considerations
 
-- **Overhead de memoria**: Cada puntero asignado consume memoria adicional (16 bytes) para el nodo de la lista enlazada.
-- **Thread-safety**: Esta implementación NO es thread-safe. Para uso multihilo, se requieren mutex.
-- **Límite de FDs**: Soporte para un máximo de 1024 descriptores de archivo.
-- **Uso de -42**: El valor mágico `-42` se usa para comandos especiales. Evita usar este valor en tu código.
-- **Performance**: El overhead es mínimo para la mayoría de aplicaciones, pero puede ser significativo en programas con millones de asignaciones.
+- **Memory overhead**: Each tracked pointer uses extra memory (16 bytes) for the list node.
+- **Thread-safety**: This implementation is NOT thread-safe. Mutexes are required for multi-threaded use.
+- **FD limit**: Supports up to 1024 file descriptors.
+- **-42 usage**: The magic value `-42` is used for special commands. Avoid using this value in your code.
+- **Performance**: Overhead is minimal for most applications, but can be significant in programs with millions of allocations.
 
 ---
 
-## 📄 Licencia
+## 📄 License
 
-Este proyecto está licenciado bajo la WTFPL – [Do What the Fuck You Want to Public License](http://www.wtfpl.net/about/).
+This project is licensed under the WTFPL – [Do What the Fuck You Want to Public License](http://www.wtfpl.net/about/).
 
 ---
 
 <div align="center">
 
-**🧮 Desarrollado por Kobayashi82 🧮**
+**🧮 Developed by Kobayashi82 🧮**
 
 *"Memory leaks? Not on my watch!"*
 
