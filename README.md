@@ -24,14 +24,14 @@ This project intercepts standard OS calls (`malloc`, `calloc`, `realloc`, `free`
 
 ## ✨ Features
 
-- **Automatic memory management**: Tracks and frees all allocated memory.
-- **File descriptor management**: Automatically handles open/close of file descriptors.
-- **`execve` safety**: Safely duplicates arguments and environment before executing new processes.
-- **Efficient hash table**: Uses a hash table for fast tracking of memory pointers.
-- **Mass release**: Special function to free all resources with a single call.
-- **Transparent usage**: Wrappers are transparent to user code.
-- **POSIX compatible**: Standard implementation for Unix/Linux systems.
-- **Norminette compliant**: Meets 42 Norminette standards.
+- `Automatic memory management`: Tracks and frees all allocated memory.
+- `File descriptor management`: Automatically handles open/close of file descriptors.
+- `execve safety`: Safely duplicates arguments and environment before executing new processes.
+- `Efficient hash table`: Uses a hash table for fast tracking of memory pointers.
+- `Mass release`: Special function to free all resources with a single call.
+- `Transparent usage`: Wrappers are transparent to user code.
+- `POSIX compatible`: Standard implementation for Unix/Linux systems.
+- `Norminette compliant`: Meets 42 Norminette standards.
 
 ## 📦 Components
 

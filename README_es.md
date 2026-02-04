@@ -24,14 +24,14 @@ Este proyecto intercepta llamadas estándar al sistema operativo (`malloc`, `cal
 
 ## ✨ Características
 
-- **Gestión automática de memoria**: Rastreo y liberación automática de toda la memoria asignada.
-- **Gestión de descriptores de archivo**: Control automático de apertura y cierre de file descriptors.
-- **Seguridad en `execve`**: Duplicación segura de argumentos y entorno antes de ejecutar nuevos procesos.
-- **Hash table eficiente**: Utiliza una tabla hash para el seguimiento rápido de punteros de memoria.
-- **Liberación masiva**: Función especial para liberar todos los recursos con una sola llamada.
-- **Sin overhead visual**: Los wrappers son transparentes para el código del usuario.
-- **Compatible con POSIX**: Implementación estándar compatible con sistemas Unix/Linux.
-- **Norminette compliant**: Código que cumple con los estándares de la Norminette de 42.
+- `Gestión automática de memoria`: Rastreo y liberación automática de toda la memoria asignada.
+- `Gestión de descriptores de archivo`: Control automático de apertura y cierre de file descriptors.
+- `Seguridad en execve`: Duplicación segura de argumentos y entorno antes de ejecutar nuevos procesos.
+- `Hash table eficiente`: Utiliza una tabla hash para el seguimiento rápido de punteros de memoria.
+- `Liberación masiva`: Función especial para liberar todos los recursos con una sola llamada.
+- `Sin overhead visual`: Los wrappers son transparentes para el código del usuario.
+- `Compatible con POSIX`: Implementación estándar compatible con sistemas Unix/Linux.
+- `Norminette compliant`: Código que cumple con los estándares de la Norminette de 42.
 
 ## 📦 Componentes
 
