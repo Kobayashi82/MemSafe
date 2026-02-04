@@ -18,9 +18,7 @@
 
 [README en Español](README_es.md)
 
-## 🎯 Description
-
-MemSafe is a wrapper library that provides a safety layer for automatic memory and system resource management in C applications.
+`MemSafe` is a wrapper library that provides a safety layer for automatic memory and system resource management in C applications.
 
 This project intercepts standard OS calls (`malloc`, `calloc`, `realloc`, `free`, `open`, `close`, `execve`, etc.) to automatically release resources and prevent memory leaks in case of errors or program termination.
 
@@ -88,7 +86,7 @@ Termination wrapper (requires `safe_mem.c`):
 - Registers with `atexit()` to guarantee cleanup on normal termination
 - Signal handlers for termination signals (SIGTERM, SIGINT, SIGQUIT, SIGHUP)
 
-## 🔧 Installation and Usage
+## 🔧 Installation
 
 ### Build the test project
 
@@ -205,30 +203,13 @@ int main(void)
 }
 ```
 
-## 🏗️ Architecture
-
-```
-               ┌───────────────────────────────────────┐
-               │             Your App                  │
-               └───────────────────┬───────────────────┘
-                        ┌──────────▼──────────┐
-                        │   MemSafe Wrapper   │
-        ┌───────────────└─┬─────────────────┬─┘───────────────┐
- ┌──────▼──────┐   ┌──────▼──────┐   ┌──────▼──────┐   ┌──────▼──────┐
- │  safe_mem.c │   │  safe_fd.c  │   │safe_execve.c│   │ safe_exit.c │
- └──────┬──────┘   └──────┬──────┘   └──────┬──────┘   └──────┬──────┘
-        └──────────────►┌─▼─────────────────▼─┐◄──────────────┘
-                        │    System  Calls    │
-                        └─────────────────────┘
-```
-
 ## ⚠️ Considerations
 
-- **Memory overhead**: Each tracked pointer uses extra memory (16 bytes) for the list node.
-- **Thread-safety**: This implementation is NOT thread-safe. Mutexes are required for multi-threaded use.
-- **FD limit**: Supports up to 1024 file descriptors.
-- **-42 usage**: The magic value `-42` is used for special commands. Avoid using this value in your code.
-- **Performance**: Overhead is minimal for most applications, but can be significant in programs with millions of allocations.
+- `Memory overhead`: Each tracked pointer uses extra memory (16 bytes) for the list node.
+- `Thread-safety`: This implementation is NOT thread-safe. Mutexes are required for multi-threaded use.
+- `FD limit`: Supports up to 1024 file descriptors.
+- `-42 usage`: The magic value `-42` is used for special commands. Avoid using this value in your code.
+- `Performance`: Overhead is minimal for most applications, but can be significant in programs with millions of allocations.
 
 ---
 

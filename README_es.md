@@ -18,9 +18,7 @@
 
 [README in English](README.md)
 
-## 🎯 Descripción
-
-MemSafe es una biblioteca de funciones wrapper que proporciona una capa de seguridad para la gestión automática de memoria y recursos del sistema en aplicaciones C.
+`MemSafe` es una biblioteca de funciones wrapper que proporciona una capa de seguridad para la gestión automática de memoria y recursos del sistema en aplicaciones C.
 
 Este proyecto intercepta llamadas estándar al sistema operativo (`malloc`, `calloc`, `realloc`, `free`, `open`, `close`, `execve`, etc.) para gestionar automáticamente la liberación de recursos y prevenir memory leaks en caso de errores o terminación del programa.
 
@@ -88,7 +86,7 @@ Wrapper para función de terminación (requiere `safe_mem.c`):
 - Registro con `atexit()` para garantizar limpieza en terminación normal
 - Handlers para señales de termionación (SIGTERM, SIGINT, SIGQUIT, SIGHUP)
 
-## 🔧 Instalación y Uso
+## 🔧 Instalación
 
 ### Compilación del proyecto de prueba
 
@@ -205,30 +203,13 @@ int main(void)
 }
 ```
 
-## 🏗️ Arquitectura
-
-```
-               ┌───────────────────────────────────────┐
-               │             Tu Aplicación             │
-               └───────────────────┬───────────────────┘
-                        ┌──────────▼──────────┐
-                        │   MemSafe Wrapper   │
-        ┌───────────────└─┬─────────────────┬─┘───────────────┐
- ┌──────▼──────┐   ┌──────▼──────┐   ┌──────▼──────┐   ┌──────▼──────┐
- │  safe_mem.c │   │  safe_fd.c  │   │safe_execve.c│   │ safe_exit.c │
- └──────┬──────┘   └──────┬──────┘   └──────┬──────┘   └──────┬──────┘
-        └──────────────►┌─▼─────────────────▼─┐◄──────────────┘
-                        │    System  Calls    │
-                        └─────────────────────┘
-```
-
 ## ⚠️ Consideraciones
 
-- **Overhead de memoria**: Cada puntero asignado consume memoria adicional (16 bytes) para el nodo de la lista enlazada.
-- **Thread-safety**: Esta implementación NO es thread-safe. Para uso multihilo, se requieren mutex.
-- **Límite de FDs**: Soporte para un máximo de 1024 descriptores de archivo.
-- **Uso de -42**: El valor mágico `-42` se usa para comandos especiales. Evita usar este valor en tu código.
-- **Performance**: El overhead es mínimo para la mayoría de aplicaciones, pero puede ser significativo en programas con millones de asignaciones.
+- `Overhead de memoria`: Cada puntero asignado consume memoria adicional (16 bytes) para el nodo de la lista enlazada.
+- `Thread-safety`: Esta implementación NO es thread-safe. Para uso multihilo, se requieren mutex.
+- `Límite de FDs`: Soporte para un máximo de 1024 descriptores de archivo.
+- `Uso de -42`: El valor mágico `-42` se usa para comandos especiales. Evita usar este valor en tu código.
+- `Performance`: El overhead es mínimo para la mayoría de aplicaciones, pero puede ser significativo en programas con millones de asignaciones.
 
 ---
 
