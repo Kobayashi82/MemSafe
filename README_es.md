@@ -115,7 +115,7 @@ El programa de prueba demuestra:
 El proyecto incluye el script `leaks` que ejecuta Valgrind con las opciones apropiadas para detectar memory leaks y file descriptor leaks:
 
 ```sh
-./leaks ./test
+./leaks
 ```
 
 Este script ejecuta:

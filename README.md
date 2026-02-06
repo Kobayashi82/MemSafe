@@ -115,7 +115,7 @@ The test program demonstrates:
 The project includes the `leaks` script that runs Valgrind with appropriate options to detect memory leaks and FD leaks:
 
 ```sh
-./leaks ./test
+./leaks
 ```
 
 This script runs:

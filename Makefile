@@ -26,6 +26,7 @@ all: $(NAME)
 
 $(NAME): $(OBJS)
 	@$(CC) $(LDFLAGS) -o $(NAME) $(OBJS)
+	@make -s clean
 
 obj/%.o: %.c
 	@mkdir -p $(@D)

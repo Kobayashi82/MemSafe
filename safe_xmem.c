@@ -6,7 +6,7 @@
 /*   By: vzurera- <vzurera-@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/04 23:17:47 by vzurera-          #+#    #+#             */
-/*   Updated: 2025/12/05 13:59:08 by vzurera-         ###   ########.fr       */
+/*   Updated: 2026/02/06 19:11:22 by vzurera-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void	*__real_realloc(void *ptr, unsigned long size);
 void	__real_free(void *ptr);
 void	*hash_index(void *ptr);
 void	**mem_find(void *ptr);
-void	mem_delete(void *ptr, int just_node);
+void	mem_delete(void *ptr, void **prev, int just_node);
 
 void	*__wrap_calloc(unsigned long nmemb, unsigned long size)
 {
@@ -39,7 +39,7 @@ void	*__wrap_calloc(unsigned long nmemb, unsigned long size)
 	mem = mem_find(ptr);
 	if (mem)
 		return (__real_free(*mem), *mem = ptr, ptr);
-	i = (unsigned long)hash_index(ptr) % HASH_SIZE;
+	i = (unsigned long)hash_index(ptr);
 	new_mem = __real_malloc(sizeof(void *) * 2);
 	if (!new_mem)
 		return (__real_free(ptr), NULL);
@@ -59,10 +59,10 @@ void	*__wrap_realloc(void *ptr, unsigned long size)
 	oldptr = ptr;
 	ptr = __real_realloc(ptr, size);
 	if (!ptr && !size && oldptr)
-		return (mem_delete(oldptr, 1), NULL);
+		return (mem_delete(oldptr, NULL, 1), NULL);
 	if (!ptr || oldptr == ptr)
 		return (ptr);
-	mem_delete(oldptr, 1);
+	mem_delete(oldptr, NULL, 1);
 	hashtable = (void **)hash_index(NULL);
 	if (!hashtable)
 		return (NULL);
@@ -73,7 +73,7 @@ void	*__wrap_realloc(void *ptr, unsigned long size)
 	if (!new_mem)
 		return (__real_free(ptr), NULL);
 	new_mem[0] = ptr;
-	new_mem[1] = hashtable[(unsigned long)hash_index(ptr) % HASH_SIZE];
-	hashtable[(unsigned long)hash_index(ptr) % HASH_SIZE] = new_mem;
+	new_mem[1] = hashtable[(unsigned long)hash_index(ptr)];
+	hashtable[(unsigned long)hash_index(ptr)] = new_mem;
 	return (ptr);
 }

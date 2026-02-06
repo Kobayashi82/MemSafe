@@ -6,7 +6,7 @@
 /*   By: vzurera- <vzurera-@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/04 23:17:52 by vzurera-          #+#    #+#             */
-/*   Updated: 2025/12/05 14:59:32 by vzurera-         ###   ########.fr       */
+/*   Updated: 2026/02/06 19:31:29 by vzurera-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,9 @@ int	test_execve(void)
 	argv = malloc(sizeof(char *) * 4);
 	if (!argv)
 		return (1);
-	argv[0] = strdup("/usr/bin/true");
-	argv[1] = strdup("TEST=OK");
-	argv[2] = strdup("HELLO=WORLD");
+	argv[0] = strdup("/usr/bin/echo");
+	argv[1] = strdup("HELLO");
+	argv[2] = strdup("WORLD");
 	argv[3] = NULL;
 	envp = malloc(sizeof(char *) * 3);
 	if (!envp)
@@ -39,6 +39,7 @@ int	test_execve(void)
 
 int	main(void)
 {
+	int	fd;
 	int	fds[2];
 	int	*ptr;
 	int	pid;
@@ -46,10 +47,10 @@ int	main(void)
 	ptr = malloc(32);
 	ptr = calloc(1, 64);
 	ptr = realloc(ptr, 128);
-	open("./test.c", O_RDONLY);
+	fd = open("./test.c", O_RDONLY);
 	pipe(fds);
 	dup(STDOUT_FILENO);
-	dup2(fds[1], STDOUT_FILENO);
+	dup2(fds[1], fd);
 	close(-42);
 	free((void *)-42);
 	malloc(16);
@@ -59,5 +60,4 @@ int	main(void)
 		test_execve();
 	else
 		waitpid(pid, NULL, 0);
-	test_execve();
 }
