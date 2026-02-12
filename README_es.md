@@ -11,7 +11,7 @@
 </div>
 
 <div align="center">
-  <img src="/images/MemSafe.png">
+  <img src="/images/MemSafe.jpg">
 </div>
 
 # MemSafe
